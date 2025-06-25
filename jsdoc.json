@@ -1,0 +1,10 @@
+{
+    "source": {
+      "include": ["app.js"]
+    },
+    "opts": {
+      "destination": "./docs",
+      "template": "default"
+    }
+  }
+  
