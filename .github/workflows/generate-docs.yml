@@ -41,7 +41,7 @@ jobs:
       - name: Generate docs with OpenAI
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: node scripts/gen-docs.cjs
+        run: node scripts/gen-docs.js
 
       - name: Commit & Push Docs (if changed)
         run: |
