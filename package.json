@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "generate:jsdoc": "jsdoc -c jsdoc.json"
+    "generate:jsdoc": "jsdoc -c jsdoc.json",
+    "gen-docs": "jsdoc -c jsdoc.json"
   },
   "keywords": [],
   "author": "",
