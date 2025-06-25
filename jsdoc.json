@@ -3,7 +3,7 @@
       "include": ["app.js"]
     },
     "opts": {
-      "destination": "./docs/generated"
+      "destination": "./docs"
     }
   }
   
