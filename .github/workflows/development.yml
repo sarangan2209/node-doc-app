@@ -16,7 +16,7 @@ jobs:
     needs: generate-docs
     uses: ./.github/workflows/cdk.yml
     permissions:
-      id-token: write   # 👈 Required for AWS OIDC
+      id-token: write   
       contents: read
     with:
       PROJECT_ENVIRONMENT: development
@@ -27,7 +27,7 @@ jobs:
     needs: deploy-cdk-to-development
     uses: ./.github/workflows/s3.yml
     permissions:
-      id-token: write   # 👈 Required for AWS OIDC
+      id-token: write 
       contents: read
     with:
       PROJECT_ENVIRONMENT: development
