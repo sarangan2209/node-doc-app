@@ -1,0 +1,56 @@
+name: CDK Build and Deploy
+
+on:
+  workflow_call:
+    inputs:
+      PROJECT_ENVIRONMENT:
+        type: string
+        required: true
+      AWS_REGION:
+        type: string
+        required: true
+      WORKING_DIR:
+        type: string
+        required: true
+      GIT_HASH:
+        type: string
+        required: true
+
+jobs:
+  cdk-deploy:
+    name: CDK Build and Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      PROJECT_ENVIRONMENT: ${{ inputs.PROJECT_ENVIRONMENT }}
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout Repository
+      
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::533267230957:role/git-action
+          role-session-name: github-actions
+          aws-region: ${{ inputs.AWS_REGION }} 
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.WORKING_DIR }}
+        run: yarn install
+
+      - name: CDK Synthesize
+        working-directory: ${{ inputs.WORKING_DIR }}
+        run: npx cdk synth --context gitRevision=$(echo "${{ inputs.GIT_HASH }}" | cut -c1-7)
+
+      - name: CDK Deploy
+        working-directory: ${{ inputs.WORKING_DIR }}
+        run: npx cdk deploy --context gitRevision=$(echo "${{ inputs.GIT_HASH }}" | cut -c1-7) --context projectEnvironment=$PROJECT_ENVIRONMENT --require-approval never --all
+
+      
