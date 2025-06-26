@@ -1,64 +1,68 @@
-# name: Auto-generate Docs
+name: Auto-generate Docs
 
-# on:
-#   pull_request:
-#     branches: [ main ]
-#   push:
-#     branches: [ main ]
+on:
+  workflow_call:
 
-# permissions:
-#   contents: write
-#   pull-requests: read
 
-# jobs:
-#   generate-docs:
-#     runs-on: ubuntu-latest
+permissions:
+  contents: write
+  pull-requests: read
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v3
-#         with:
-#           persist-credentials: true
-#           fetch-depth: 0
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
 
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: '20'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0
 
-#       - name: Install dependencies
-#         run: npm ci
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
-#       - name: Get changed files
-#         run: |
-#           if [ "${{ github.event_name }}" = "pull_request" ]; then
-#             git fetch origin ${{ github.base_ref }}
-#             git diff --name-only origin/${{ github.base_ref }}...HEAD > changed-files.txt
-#           else
-#             git diff --name-only HEAD~1 > changed-files.txt
-#           fi
+      - name: Install dependencies
+        run: npm ci
 
-#       - name: Generate docs with OpenAI
-#         env:
-#           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-#         run: node scripts/gen-docs.js
+      - name: Get changed files
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin ${{ github.base_ref }}
+            git diff --name-only origin/${{ github.base_ref }}...HEAD > changed-files.txt
+          else
+            git diff --name-only HEAD~1 > changed-files.txt
+          fi
 
-#       - name: Generate HTML docs using JSDoc
-#         run: npx jsdoc -c jsdoc.json
+      - name: Generate docs with OpenAI
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node scripts/gen-docs.js
 
-#       - name: Commit & Push Docs (if changed)
-#         run: |
-#           git config --global user.name "github-actions"
-#           git config --global user.email "actions@github.com"
+      - name: Generate HTML docs using JSDoc
+        run: npx jsdoc -c jsdoc.json
+
+      - name: Upload generated docs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsdoc-generated
+          path: docs/generated
+
+      - name: Commit & Push Docs (if changed)
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
           
-#           # Get the current branch name
-#           BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-#           echo "Current branch: $BRANCH_NAME"
+          # Get the current branch name
+          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          echo "Current branch: $BRANCH_NAME"
           
-#           git add docs/generated/
-#           if git diff --cached --quiet; then
-#             echo "No documentation changes to commit."
-#           else
-#             git commit -m "Auto-generated docs [skip ci]"
-#             git push origin HEAD:$BRANCH_NAME
-#           fi
+          git add docs/generated/
+          if git diff --cached --quiet; then
+            echo "No documentation changes to commit."
+          else
+            git commit -m "Auto-generated docs [skip ci]"
+            git push origin HEAD:$BRANCH_NAME
+          fi

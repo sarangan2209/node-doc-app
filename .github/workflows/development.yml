@@ -5,7 +5,10 @@ on:
     branches:
       - cloudFront    
 jobs:
+  generate-docs:
+    uses: ./.github/workflows/generate-docs.yml
   deploy-cdk-to-development:
+    needs: generate-docs
     uses: ./.github/workflows/cdk.yml
     permissions:
       id-token: write   # 👈 Required for AWS OIDC
