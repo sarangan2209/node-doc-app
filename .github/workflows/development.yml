@@ -10,6 +10,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: read
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   deploy-cdk-to-development:
     needs: generate-docs
     uses: ./.github/workflows/cdk.yml
