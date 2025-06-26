@@ -7,6 +7,9 @@ on:
 jobs:
   deploy-cdk-to-development:
     uses: ./.github/workflows/cdk.yml
+    permissions:
+      id-token: write   # 👈 Required for AWS OIDC
+      contents: read
     with:
       PROJECT_ENVIRONMENT: development
       AWS_REGION: us-east-1
@@ -15,6 +18,9 @@ jobs:
   deploy-to-s3:
     needs: deploy-cdk-to-development
     uses: ./.github/workflows/s3.yml
+    permissions:
+      id-token: write   # 👈 Required for AWS OIDC
+      contents: read
     with:
       PROJECT_ENVIRONMENT: development
       AWS_REGION: us-east-1
