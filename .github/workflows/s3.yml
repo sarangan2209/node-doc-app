@@ -1,0 +1,55 @@
+name: S3 Deploy
+
+on:
+  workflow_call:
+    inputs:
+      PROJECT_ENVIRONMENT:
+        type: string
+        required: true
+      AWS_REGION:
+        type: string
+        required: true
+      AWS_BUCKET:
+        type: string
+        required: true
+      PROJECT_NAME:
+        type: string
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy to AWS S3
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      PROJECT_ENVIRONMENT: ${{ inputs.PROJECT_ENVIRONMENT }}
+      PROJECT_NAME: ${{ inputs.PROJECT_NAME }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Download generated docs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jsdoc-generated
+          path: docs/generated
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::533267230957:role/git-action
+          role-session-name: github-actions
+          aws-region: ${{ inputs.AWS_REGION }}
+
+      - name: Deploy to AWS S3
+        run: aws s3 sync docs/generated s3://${{ inputs.AWS_BUCKET }} --delete

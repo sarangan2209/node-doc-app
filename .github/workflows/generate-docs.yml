@@ -1,10 +1,10 @@
 name: Auto-generate Docs
 
 on:
-  pull_request:
-    branches: [ main ]
-  push:
-    branches: [ main ]
+  workflow_call:
+    secrets:
+      OPENAI_API_KEY:
+        required: true
 
 permissions:
   contents: write
@@ -42,6 +42,15 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: node scripts/gen-docs.js
+
+      - name: Generate HTML docs using JSDoc
+        run: npx jsdoc -c jsdoc.json
+
+      - name: Upload generated docs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsdoc-generated
+          path: docs/generated
 
       - name: Commit & Push Docs (if changed)
         run: |

@@ -1,0 +1,38 @@
+name: Development
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - cloudFront    
+jobs:
+  generate-docs:
+    uses: ./.github/workflows/generate-docs.yml
+    permissions:
+      contents: write
+      pull-requests: read
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  deploy-cdk-to-development:
+    needs: generate-docs
+    uses: ./.github/workflows/cdk.yml
+    permissions:
+      id-token: write   
+      contents: read
+    with:
+      PROJECT_ENVIRONMENT: development
+      AWS_REGION: us-east-1
+      WORKING_DIR: deploy/cdk
+      GIT_HASH: ${{ github.sha }}
+  deploy-to-s3:
+    needs: deploy-cdk-to-development
+    uses: ./.github/workflows/s3.yml
+    permissions:
+      id-token: write 
+      contents: read
+    with:
+      PROJECT_ENVIRONMENT: development
+      AWS_REGION: us-east-1
+      AWS_BUCKET: silo-jsdocs-development
+      PROJECT_NAME: jsdocs
+  
+            
