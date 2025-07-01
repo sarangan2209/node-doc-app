@@ -6,9 +6,9 @@ const projectName = 'jsdocs'
 
 const app = new cdk.App();
 
-// const projectEnvironment = process.env.PROJECT_ENVIRONMENT
+const projectEnvironment = process.env.PROJECT_ENVIRONMENT
 
-const projectEnvironment = 'development'
+// const projectEnvironment = 'development'
 
 
 const env = {
@@ -21,8 +21,8 @@ new s3CdnStack(app,
     env: env,
     projectEnvironment: projectEnvironment,
     projectName: projectName,
-    // gitRevision: process.env.GIT_REVISION ?? app.node.tryGetContext("gitRevision"),
-    gitRevision: 'test',
+    gitRevision: process.env.GIT_REVISION ?? app.node.tryGetContext("gitRevision"),
+    // gitRevision: 'test',
   },
   `${projectName}-cloudfront-${projectEnvironment}-stack`
 );
