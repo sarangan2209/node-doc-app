@@ -29,15 +29,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Get changed files
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch origin ${{ github.base_ref }}
-            git diff --name-only origin/${{ github.base_ref }}...HEAD > changed-files.txt
-          else
-            git diff --name-only HEAD~1 > changed-files.txt
-          fi
-
       - name: Generate docs with OpenAI
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
