@@ -26,6 +26,9 @@ jobs:
   get-cloudfront-id:
     needs: deploy-cdk-to-development
     runs-on: ubuntu-latest
+    permissions:               
+      id-token: write          
+      contents: read
     outputs:
       dist_id: ${{ steps.get_dist_id.outputs.dist_id }}
     steps:
