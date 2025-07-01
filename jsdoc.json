@@ -1,6 +1,6 @@
 {
     "source": {
-      "include": ["app.js"]
+      "include": ["src/*.js"]
     },
     "opts": {
       "destination": "./docs/generated"
