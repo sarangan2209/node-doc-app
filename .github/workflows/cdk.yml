@@ -49,8 +49,18 @@ jobs:
         working-directory: ${{ inputs.WORKING_DIR }}
         run: npx cdk synth --context gitRevision=$(echo "${{ inputs.GIT_HASH }}" | cut -c1-7)
 
-      - name: CDK Deploy
+      - name: CDK Deploy (Lambda then CloudFront)
         working-directory: ${{ inputs.WORKING_DIR }}
-        run: npx cdk deploy --context gitRevision=$(echo "${{ inputs.GIT_HASH }}" | cut -c1-7) --context projectEnvironment=$PROJECT_ENVIRONMENT --require-approval never --all
+        run: |
+          REVISION=$(echo "${{ inputs.GIT_HASH }}" | cut -c1-7)
+          npx cdk deploy jsdocs-lambda-${PROJECT_ENVIRONMENT}-stack \
+            --context gitRevision=$REVISION \
+            --context projectEnvironment=$PROJECT_ENVIRONMENT \
+            --require-approval never && \
+          npx cdk deploy jsdocs-cloudfront-${PROJECT_ENVIRONMENT}-stack \
+            --context gitRevision=$REVISION \
+            --context projectEnvironment=$PROJECT_ENVIRONMENT \
+            --require-approval never
+
 
       
