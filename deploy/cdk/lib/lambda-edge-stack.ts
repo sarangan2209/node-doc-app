@@ -10,7 +10,7 @@ export class LambdaEdgeStack extends cdk.Stack {
     constructor(scope: Construct, props: CustomStackProps, id: string) {
       super(scope, id, {
         ...props,
-        env: { region: 'us-east-1' }, 
+        env: { region: 'us-east-1' },
       });
   
       const fn = new lambda.Function(this, 'BasicAuthFn', {
@@ -19,7 +19,14 @@ export class LambdaEdgeStack extends cdk.Stack {
         code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
       });
   
-      this.edgeLambdaVersion = fn.currentVersion;
+      const version = fn.currentVersion;
+      this.edgeLambdaVersion = version;
+  
+      new cdk.CfnOutput(this, `${id}-EdgeLambdaVersionArn`, {
+        value: version.functionArn,
+        exportName: `${id}-EdgeLambdaVersionArn`,
+      });
     }
   }
+  
   
