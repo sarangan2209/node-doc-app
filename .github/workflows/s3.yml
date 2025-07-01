@@ -15,6 +15,9 @@ on:
       PROJECT_NAME:
         type: string
         required: true
+      CLOUDFRONT_DIST_ID:
+        type: string
+        required: true
 
 jobs:
   deploy:
@@ -53,3 +56,9 @@ jobs:
 
       - name: Deploy to AWS S3
         run: aws s3 sync docs/generated s3://${{ inputs.AWS_BUCKET }} --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ inputs.CLOUDFRONT_DIST_ID }} \
+            --paths "/*"

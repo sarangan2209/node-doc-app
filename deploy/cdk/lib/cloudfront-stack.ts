@@ -49,17 +49,8 @@ export class s3Cdn extends Construct {
 
     codeBaseBucket.addToResourcePolicy(bucketPolicy);
 
-    // if (!props.lambdaEdgeArn) {
-    //   throw new Error('lambdaEdgeArn is required for s3CdnStack');
-    // }
-
-    // const edgeLambdaVersionArn = cdk.Fn.importValue(`${props.projectName}-lambda-${props.projectEnvironment}-stack-EdgeLambdaVersionArn`);
-
     const edgeLambdaVersionArn = cdk.Fn.importValue(`${props.projectName}-lambda-${props.projectEnvironment}-stack-EdgeLambdaVersionArn`);
     const basicAuthFn = lambda.Version.fromVersionArn(this, 'EdgeLambdaVersion', edgeLambdaVersionArn);
-
-
-
 
     const distribution = new cloudfront.CloudFrontWebDistribution(this, `${projectName}-cdn-distribution`, {
       originConfigs: [
@@ -104,6 +95,12 @@ export class s3Cdn extends Construct {
         sslMethod: cloudfront.SSLMethod.SNI,
         securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
       }),
+    });
+
+    // ✅ Export the distribution ID for GitHub Actions
+    new cdk.CfnOutput(this, 'CloudFrontDistributionId', {
+      value: distribution.distributionId,
+      exportName: `${props.projectName}-${props.projectEnvironment}-DistributionId`,
     });
 
     const distributionDomainName = distribution.distributionDomainName;
