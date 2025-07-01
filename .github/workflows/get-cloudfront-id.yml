@@ -1,0 +1,40 @@
+name: Get CloudFront Distribution ID
+
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+    outputs:
+      CLOUDFRONT_DIST_ID:
+        description: "CloudFront Distribution ID"
+        value: ${{ jobs.get-id.outputs.dist_id }}
+
+jobs:
+  get-id:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      dist_id: ${{ steps.get_dist_id.outputs.dist_id }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::533267230957:role/git-action
+          role-session-name: github-actions
+          aws-region: us-east-1
+
+      - name: Get CloudFront Distribution ID from CDK Export
+        id: get_dist_id
+        run: |
+          DIST_ID=$(aws cloudformation list-exports \
+            --query "Exports[?Name=='jsdocs-${{ inputs.ENVIRONMENT }}-DistributionId'].Value" \
+            --output text)
+          echo "dist_id=$DIST_ID" >> $GITHUB_OUTPUT

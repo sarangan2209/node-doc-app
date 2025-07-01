@@ -25,31 +25,9 @@ jobs:
       GIT_HASH: ${{ github.sha }}
   get-cloudfront-id:
     needs: deploy-cdk-to-development
-    runs-on: ubuntu-latest
-    permissions:               
-      id-token: write          
-      contents: read
-    outputs:
-      dist_id: ${{ steps.get_dist_id.outputs.dist_id }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::533267230957:role/git-action
-          role-session-name: github-actions
-          aws-region: us-east-1
-
-      - name: Get CloudFront Distribution ID from CDK Export
-        id: get_dist_id
-        run: |
-          DIST_ID=$(aws cloudformation list-exports \
-            --query "Exports[?Name=='jsdocs-development-DistributionId'].Value" \
-            --output text)
-          echo "dist_id=$DIST_ID" >> $GITHUB_OUTPUT
-
+    uses: ./.github/workflows/get-cloudfront-id.yml
+    with:
+      PROJECT_ENVIRONMENT: development
   deploy-to-s3:
     needs: get-cloudfront-id
     uses: ./.github/workflows/s3.yml
@@ -61,6 +39,7 @@ jobs:
       AWS_REGION: us-east-1
       AWS_BUCKET: silo-jsdocs-development
       PROJECT_NAME: jsdocs
-      CLOUDFRONT_DIST_ID: ${{ needs.get-cloudfront-id.outputs.dist_id }}
+      CLOUDFRONT_DIST_ID: ${{ needs.get-cloudfront-id.outputs.CLOUDFRONT_DIST_ID }}
+
   
             
