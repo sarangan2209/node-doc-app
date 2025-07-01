@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CustomStackProps } from './stack';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as path from 'path';
 
 export class LambdaEdgeStack extends cdk.Stack {
@@ -12,11 +13,23 @@ export class LambdaEdgeStack extends cdk.Stack {
         ...props,
         env: { region: 'us-east-1' },
       });
+
+
+      const edgeLambdaRole = new iam.Role(this, 'EdgeLambdaExecutionRole', {
+        assumedBy: new iam.CompositePrincipal(
+          new iam.ServicePrincipal('lambda.amazonaws.com'),
+          new iam.ServicePrincipal('edgelambda.amazonaws.com')
+        ),
+        managedPolicies: [
+          iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
+        ],
+      });
   
       const fn = new lambda.Function(this, 'BasicAuthFn', {
         runtime: lambda.Runtime.NODEJS_18_X,
         handler: 'index.handler',
         code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
+        role: edgeLambdaRole,
       });
   
       const version = fn.currentVersion;
