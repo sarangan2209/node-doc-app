@@ -10,6 +10,7 @@ export interface CustomStackProps extends StackProps {
     readonly projectName: string;
     readonly gitRevision: string;
     readonly projectEnvironment?: string;
+    readonly lambdaEdgeArn?: string;
 }
 
 export class CustomStack extends Stack {

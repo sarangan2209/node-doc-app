@@ -7,6 +7,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 
 export class s3CdnStack extends CustomStack {
   constructor(scope: Construct, props: CustomStackProps, stackName: string) {
@@ -46,7 +47,18 @@ export class s3Cdn extends Construct {
       principals: [new iam.CanonicalUserPrincipal(oai.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
     });
 
-    codeBaseBucket.addToResourcePolicy(bucketPolicy);
+    codeBaseBucket.addToResourcePolicy(bucketPolicy);      
+    
+    if (!props.lambdaEdgeArn) {
+      throw new Error('lambdaEdgeArn is required for s3CdnStack');
+    }
+    
+    const basicAuthFn = lambda.Version.fromVersionArn(
+      this,
+      'EdgeLambdaVersion',
+      props.lambdaEdgeArn
+    );
+    
 
     const distribution = new cloudfront.CloudFrontWebDistribution(this, `${projectName}-cdn-distribution`, {
       originConfigs: [
@@ -66,6 +78,12 @@ export class s3Cdn extends Construct {
                   forward: 'all',
                 },
               },
+              lambdaFunctionAssociations: [
+                {
+                  eventType: cloudfront.LambdaEdgeEventType.VIEWER_REQUEST,
+                  lambdaFunction: basicAuthFn,
+                },
+              ],
             },
           ],
         },

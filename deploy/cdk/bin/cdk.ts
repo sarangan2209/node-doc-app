@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import { s3CdnStack } from '../lib/cloudfront-stack';
+import { LambdaEdgeStack } from '../lib/lambda-edge-stack';
 
 const projectName = 'jsdocs'
 
@@ -16,12 +17,23 @@ const env = {
   region: 'us-east-1',
 }
 
+const lambdaStack = new LambdaEdgeStack(app, 
+  {
+    env: env,
+    projectEnvironment: projectEnvironment,
+    projectName: projectName,
+    gitRevision: process.env.GIT_REVISION ?? app.node.tryGetContext("gitRevision"),
+  },
+  `${projectName}-lambda-${projectEnvironment}-stack`
+);
+
 new s3CdnStack(app,
   {
     env: env,
     projectEnvironment: projectEnvironment,
     projectName: projectName,
     gitRevision: process.env.GIT_REVISION ?? app.node.tryGetContext("gitRevision"),
+    lambdaEdgeArn: lambdaStack.edgeLambdaVersion.functionArn,
     // gitRevision: 'test',
   },
   `${projectName}-cloudfront-${projectEnvironment}-stack`
