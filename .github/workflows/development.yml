@@ -26,6 +26,9 @@ jobs:
   get-cloudfront-id:
     needs: deploy-cdk-to-development
     uses: ./.github/workflows/get-cloudfront-id.yml
+    permissions: 
+      id-token: write
+      contents: read
     with:
       PROJECT_ENVIRONMENT: development
   deploy-to-s3:
