@@ -1,5 +1,6 @@
 *.js
 !jest.config.js
+!deploy/cdk/lambda/index.js
 *.d.ts
 node_modules
 
