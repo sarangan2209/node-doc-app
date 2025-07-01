@@ -3,7 +3,7 @@ name: Get CloudFront Distribution ID
 on:
   workflow_call:
     inputs:
-      ENVIRONMENT:
+      PROJECT_ENVIRONMENT:
         required: true
         type: string
     outputs:
@@ -35,6 +35,6 @@ jobs:
         id: get_dist_id
         run: |
           DIST_ID=$(aws cloudformation list-exports \
-            --query "Exports[?Name=='jsdocs-${{ inputs.ENVIRONMENT }}-DistributionId'].Value" \
+            --query "Exports[?Name=='jsdocs-${{ inputs.PROJECT_ENVIRONMENT }}-DistributionId'].Value" \
             --output text)
           echo "dist_id=$DIST_ID" >> $GITHUB_OUTPUT
