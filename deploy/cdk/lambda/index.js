@@ -2,8 +2,8 @@ exports.handler = async (event) => {
   const request = event.Records[0].cf.request;
   const headers = request.headers;
 
-  const user = 'admin';
-  const pass = 'password';
+  const user = process.env.BASIC_AUTH_USER;
+  const pass = process.env.BASIC_AUTH_PASS;
   const authString = 'Basic ' + Buffer.from(`${user}:${pass}`).toString('base64');
 
   if (
