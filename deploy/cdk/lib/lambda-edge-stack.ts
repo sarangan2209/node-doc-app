@@ -17,14 +17,14 @@ export class LambdaEdge extends Construct {
   public readonly edgeLambdaVersion: lambda.Version;
   constructor(scope: Construct, props: CustomStackProps, id: string) {
     super(scope, id);
-    const basicAuthUser = ssm.StringParameter.valueForStringParameter(
-      this,
-      '/jsDoc/basic-auth/username'
-    );
-    const basicAuthPass = ssm.StringParameter.valueForStringParameter(
-      this,
-      '/jsDoc/basic-auth/password'
-    );
+    // const basicAuthUser = ssm.StringParameter.valueForStringParameter(
+    //   this,
+    //   '/jsDoc/basic-auth/username'
+    // );
+    // const basicAuthPass = ssm.StringParameter.valueForStringParameter(
+    //   this,
+    //   '/jsDoc/basic-auth/password'
+    // );
     const edgeLambdaRole = new iam.Role(this, 'EdgeLambdaExecutionRole', {
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -39,10 +39,10 @@ export class LambdaEdge extends Construct {
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
       role: edgeLambdaRole,
-      environment: {
-        BASIC_AUTH_USER: basicAuthUser,
-        BASIC_AUTH_PASS: basicAuthPass,
-      },
+      // environment: {
+      //   BASIC_AUTH_USER: basicAuthUser,
+      //   BASIC_AUTH_PASS: basicAuthPass,
+      // },
     });
     fn.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
     const version = fn.currentVersion;

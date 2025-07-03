@@ -1,4 +1,4 @@
-node_modules
+node_modules/
 # Ignore everything in docs except the generated folder
 docs/*
-docs/generated/
+

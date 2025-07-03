@@ -34,14 +34,14 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: node scripts/gen-docs.js
 
-      - name: Generate HTML docs using JSDoc
-        run: npx jsdoc -c jsdoc.json
+      - name: Convert Markdown docs to HTML
+        run: node scripts/convert-md-to-html.js
 
       - name: Upload generated docs as artifact
         uses: actions/upload-artifact@v4
         with:
           name: jsdoc-generated
-          path: docs/generated
+          path: docs/html
 
       # - name: Commit & Push Docs (if changed)
       #   run: |
